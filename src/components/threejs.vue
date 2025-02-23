@@ -9,7 +9,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 500);
 let scene = null;
 let controls = null;
-const numberOfPoints = 10000000;
+const numberOfPoints = 1000000;
 
 function getPoints(vertices){
   const [A, B, C, D] = vertices;
