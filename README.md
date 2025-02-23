@@ -1,7 +1,8 @@
 # sierpinskitriangle
 
-This template should help get you started developing with Vue 3 in Vite.
+A simple visualisation of the Sierpinski ~~Triangle~~ pyramid.
 
+Generated using the chaos game algorithm
 ## Recommended IDE Setup
 
 [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
