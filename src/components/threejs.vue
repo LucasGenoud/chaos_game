@@ -1,67 +1,42 @@
 <script setup>
-import * as THREE from 'three';
-import { onMounted, onUnmounted } from 'vue';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import * as THREE from "three";
+import {onMounted, onUnmounted, ref} from 'vue';
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
-
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 500);
 let scene = null;
 let controls = null;
 const numberOfPoints = 1000000;
+let loading = ref(true);
+const worker = new Worker(new URL('../worker.js', import.meta.url));
 
-function getPoints(vertices){
-  const [A, B, C, D] = vertices;
-
-  const center = new THREE.Vector3(
-      (A.x + B.x + C.x + D.x) / 4,
-      (A.y + B.y + C.y + D.y) / 4,
-      (A.z + B.z + C.z + D.z) / 4
-  );
-
-  let previousPoint = center.clone();
-  const points = [];
-  const colors = [];
-
-  for (let i = 0; i < numberOfPoints; i++) {
-
-    const randomVertex = vertices[Math.floor(Math.random() * 4)];
-    const x = (randomVertex.x + previousPoint.x) / 2;
-    const y = (randomVertex.y + previousPoint.y) / 2;
-    const z = (randomVertex.z + previousPoint.z) / 2;
-    const point = new THREE.Vector3(x, y, z);
-    points.push(point);
-
-    const distance = point.distanceTo(center);
-    const maxDistance = center.distanceTo(D); // Distance from center to apex
-    const normalizedDistance = distance / maxDistance;
-
-    const color = new THREE.Color();
-    color.setHSL(0.7 - normalizedDistance * 0.7, 1.0, 0.5); // Blue to red gradient
-    colors.push(color.r, color.g, color.b);
-
-    previousPoint.copy(point);
-  }
-  return { points, colors };
-}
 function drawPyramid(vertices) {
+  worker.postMessage({vertices, numberOfPoints});
 
-  const { points, colors } = getPoints(vertices);
+}
+worker.onerror = function (error) {
+  console.error('Worker error: ', error);
+};
+worker.onmessage = function (event) {
+  console.log("Finished loading points");
+  const {points, colors} = event.data;
 
   const geometry = new THREE.BufferGeometry().setFromPoints(points);
-  geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3)); // Add color attribute
+  geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
 
   const material = new THREE.PointsMaterial({
     size: 0.01,
     vertexColors: true,
-
   });
 
   const pointCloud = new THREE.Points(geometry, material);
   scene.add(pointCloud);
-}
+  animate();
+  loading.value = false;
 
+};
 function getPyramidVertices(size, centerX, centerY, height) {
   let baseHeight = (Math.sqrt(3) / 2) * size;
   let A = new THREE.Vector3(centerX, centerY + baseHeight / 2, 0);
@@ -71,11 +46,16 @@ function getPyramidVertices(size, centerX, centerY, height) {
   return [A, B, C, D];
 }
 
-
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
 }
 
 onMounted(() => {
@@ -90,26 +70,24 @@ onMounted(() => {
 
   const vertices = getPyramidVertices(50, 0, 0, 50);
 
-
   drawPyramid(vertices);
   renderer.render(scene, camera);
 
   window.addEventListener('resize', onWindowResize);
 
-  function animate() {
-    requestAnimationFrame(animate);
-    controls.update();
-    renderer.render(scene, camera);
-  }
-  animate();
+
 });
+
 onUnmounted(() => {
   window.removeEventListener('resize', onWindowResize);
+  worker.terminate();
 });
 </script>
 
 <template>
+
   <div class="canvas" id="canvas"></div>
+<div v-if="loading" class="loading">LOADING</div>
 </template>
 
 <style scoped>
@@ -119,5 +97,16 @@ onUnmounted(() => {
   left: 0;
   width: 100%;
   height: 100%;
+}
+.loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
 }
 </style>
