@@ -1,15 +1,24 @@
 self.importScripts('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js');
 
 self.onmessage = function (event) {
-    const { vertices, numberOfPoints } = event.data;
-    const [A, B, C, D] = vertices;
+    const { vertices, numberOfPoints, is3D } = event.data;
 
-    const center = new THREE.Vector3(
-        (A.x + B.x + C.x + D.x) / 4,
-        (A.y + B.y + C.y + D.y) / 4,
-        (A.z + B.z + C.z + D.z) / 4
-    );
-
+    let center;
+    if (is3D) {
+        const [A, B, C, D] = vertices;
+        center = new THREE.Vector3(
+            (A.x + B.x + C.x + D.x) / 4,
+            (A.y + B.y + C.y + D.y) / 4,
+            (A.z + B.z + C.z + D.z) / 4
+        );
+    } else {
+        const [A, B, C] = vertices;
+        center = new THREE.Vector3(
+            (A.x + B.x + C.x) / 3,
+            (A.y + B.y + C.y) / 3,
+            0
+        );
+    }
 
     let previousPoint = center.clone();
     const points = [];
@@ -19,12 +28,12 @@ self.onmessage = function (event) {
         const randomVertex = vertices[Math.floor(Math.random() * vertices.length)];
         const x = (randomVertex.x + previousPoint.x) / 2;
         const y = (randomVertex.y + previousPoint.y) / 2;
-        const z = (randomVertex.z + previousPoint.z) / 2;
+        const z = is3D ? (randomVertex.z + previousPoint.z) / 2 : 0;
         const point = new THREE.Vector3(x, y, z);
         points.push(point);
 
         const distance = point.distanceTo(center);
-        const maxDistance = center.distanceTo(D);
+        const maxDistance = is3D ? center.distanceTo(vertices[3]) : center.distanceTo(vertices[0]);
         const normalizedDistance = distance / maxDistance;
 
         const color = new THREE.Color();
@@ -33,5 +42,7 @@ self.onmessage = function (event) {
 
         previousPoint.copy(point);
     }
+
+
     self.postMessage({ points, colors });
 };

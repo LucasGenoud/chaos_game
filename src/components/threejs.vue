@@ -1,7 +1,7 @@
 <script setup>
 import * as THREE from "three";
-import {onMounted, onUnmounted, ref} from 'vue';
-import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
+import { onMounted, onUnmounted, ref } from 'vue';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -10,33 +10,34 @@ let scene = null;
 let controls = null;
 const numberOfPoints = 1000000;
 let loading = ref(true);
+const is3D = ref(true); // Toggle between 2D and 3D
 const worker = new Worker(new URL('../worker.js', import.meta.url));
 
-function drawPyramid(vertices) {
-  worker.postMessage({vertices, numberOfPoints});
+function drawShape(vertices) {
+  worker.postMessage({ vertices, numberOfPoints, is3D: is3D.value });
 
+  worker.onmessage = function (event) {
+    const { points, colors } = event.data;
+
+    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3)); // Add color attribute
+
+    const material = new THREE.PointsMaterial({
+      size: 0.01,
+      vertexColors: true,
+    });
+
+    const pointCloud = new THREE.Points(geometry, material);
+    scene.add(pointCloud);
+    animate();
+    loading.value = false;
+  };
+
+  worker.onerror = function (error) {
+    console.error('Worker error: ', error);
+  };
 }
-worker.onerror = function (error) {
-  console.error('Worker error: ', error);
-};
-worker.onmessage = function (event) {
-  console.log("Finished loading points");
-  const {points, colors} = event.data;
 
-  const geometry = new THREE.BufferGeometry().setFromPoints(points);
-  geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-
-  const material = new THREE.PointsMaterial({
-    size: 0.01,
-    vertexColors: true,
-  });
-
-  const pointCloud = new THREE.Points(geometry, material);
-  scene.add(pointCloud);
-  animate();
-  loading.value = false;
-
-};
 function getPyramidVertices(size, centerX, centerY, height) {
   let baseHeight = (Math.sqrt(3) / 2) * size;
   let A = new THREE.Vector3(centerX, centerY + baseHeight / 2, 0);
@@ -44,6 +45,14 @@ function getPyramidVertices(size, centerX, centerY, height) {
   let C = new THREE.Vector3(centerX + size / 2, centerY - baseHeight / 2, 0);
   let D = new THREE.Vector3(centerX, centerY, height);
   return [A, B, C, D];
+}
+
+function getTriangleVertices(size, centerX, centerY) {
+  let baseHeight = (Math.sqrt(3) / 2) * size;
+  let A = new THREE.Vector3(centerX, centerY + baseHeight / 2, 0);
+  let B = new THREE.Vector3(centerX - size / 2, centerY - baseHeight / 2, 0);
+  let C = new THREE.Vector3(centerX + size / 2, centerY - baseHeight / 2, 0);
+  return [A, B, C];
 }
 
 function onWindowResize() {
@@ -58,6 +67,16 @@ function animate() {
   renderer.render(scene, camera);
 }
 
+function resetScene() {
+  scene.remove(...scene.children);
+  loading.value = true;
+
+  const vertices = is3D.value
+      ? getPyramidVertices(50, 0, 0, 50)
+      : getTriangleVertices(50, 0, 0);
+  drawShape(vertices);
+}
+
 onMounted(() => {
   scene = new THREE.Scene();
 
@@ -68,26 +87,25 @@ onMounted(() => {
   controls = new OrbitControls(camera, renderer.domElement);
   controls.enableZoom = true;
 
-  const vertices = getPyramidVertices(50, 0, 0, 50);
-
-  drawPyramid(vertices);
-  renderer.render(scene, camera);
-
+  resetScene(); // Initial render
   window.addEventListener('resize', onWindowResize);
-
-
 });
 
 onUnmounted(() => {
   window.removeEventListener('resize', onWindowResize);
-  worker.terminate();
+  worker.terminate(); // Clean up the worker
 });
 </script>
 
 <template>
-
   <div class="canvas" id="canvas"></div>
-<div v-if="loading" class="loading">LOADING</div>
+  <div v-if="loading" class="loading">LOADING</div>
+  <div class="controls">
+    <label>
+      <input type="checkbox" v-model="is3D" @change="resetScene" />
+      Generate 3D Pyramid
+    </label>
+  </div>
 </template>
 
 <style scoped>
@@ -108,5 +126,12 @@ onUnmounted(() => {
   justify-content: center;
   align-items: center;
   background-color: rgba(0, 0, 0, 0.5);
+}
+.controls {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  color: white;
+  z-index: 1;
 }
 </style>
