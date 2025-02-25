@@ -26,10 +26,10 @@ self.onmessage = function (event) {
 
     for (let i = 0; i < numberOfPoints; i++) {
         const randomVertex = vertices[Math.floor(Math.random() * vertices.length)];
-        const x = (randomVertex.x + previousPoint.x) / 2;
-        const y = (randomVertex.y + previousPoint.y) / 2;
-        const z = is3D ? (randomVertex.z + previousPoint.z) / 2 : 0;
-        const point = new THREE.Vector3(x, y, z);
+        const center_x = (randomVertex.x + previousPoint.x) / 2;
+        const center_y = (randomVertex.y + previousPoint.y) / 2;
+        const center_z = is3D ? (randomVertex.z + previousPoint.z) / 2 : 0;
+        const point = new THREE.Vector3(center_x, center_y, center_z);
         points.push(point);
 
         const distance = point.distanceTo(center);
