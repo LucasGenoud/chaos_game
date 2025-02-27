@@ -6,7 +6,7 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: "/sierpinski_triangle/",
+  base: "/chaos_game_fractal/",
   plugins: [
     vue(),
     vueDevTools(),
