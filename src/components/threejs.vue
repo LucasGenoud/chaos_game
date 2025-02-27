@@ -1,7 +1,43 @@
+<template>
+  <div class="canvas" id="canvas"></div>
+  <div v-if="loading" class="loading">LOADING</div>
+  <div class="controls"
+       :class="{ 'controls-dark': backgroundTheme === 'dark', 'controls-white': backgroundTheme === 'white' }">
+    <div class="control">
+      <div class="controls-label">Fractal Type:</div>
+      <select v-model="shapeType" @change="resetScene" class="select-input">
+        <option value="sierpinskiTriangle">Sierpinski Triangle</option>
+        <option value="sierpinskiPyramid">Sierpinski Pyramid</option>
+      </select>
+    </div>
+    <div class="control">
+      <div class="controls-label">Number of Points:</div>
+      <input @change="resetScene" v-model="numberOfPoints" type="range" min="1" :max="maxNumberOfPoints" :value="minNumberOfPoints"
+             class="slider">
+      <div class="control-number-of-points">{{ numberOfPoints }}</div>
+    </div>
+    <div class="control">
+      <div class="controls-label">Background:</div>
+      <select v-model="backgroundTheme" class="select-input">
+        <option value="dark">Dark</option>
+        <option value="white">White</option>
+      </select>
+    </div>
+  </div>
+
+  <Footer
+      user-name="Lucas Genoud"
+      github-link="https://github.com/LucasGenoud/"
+      linkedin-link="https://www.linkedin.com/in/lucas-genoud/"
+      :background-theme="backgroundTheme"
+  />
+</template>
+
 <script setup>
 import * as THREE from "three";
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import Footer from './Footer.vue'; // Import the Footer component
 
 const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -75,9 +111,9 @@ watch(backgroundTheme, () => {
   updateBackground();
 });
 
+
 onMounted(() => {
   scene = new THREE.Scene();
-
   document.getElementById("canvas").appendChild(renderer.domElement);
   camera.position.set(0, 0, 100);
   camera.lookAt(0, 0, 0);
@@ -85,7 +121,7 @@ onMounted(() => {
   controls = new OrbitControls(camera, renderer.domElement);
   controls.enableZoom = true;
 
-  updateBackground(); // Initialize background
+  updateBackground();
   resetScene();
   window.addEventListener('resize', onWindowResize);
 });
@@ -95,36 +131,8 @@ onUnmounted(() => {
   worker.terminate();
 });
 </script>
-
-<template>
-  <div class="canvas" id="canvas"></div>
-  <div v-if="loading" class="loading">LOADING</div>
-  <div class="controls"
-       :class="{ 'controls-dark': backgroundTheme === 'dark', 'controls-white': backgroundTheme === 'white' }">
-    <div class="control">
-      <div class="controls-label">Fractal Type:</div>
-      <select v-model="shapeType" @change="resetScene" class="select-input">
-        <option value="sierpinskiTriangle">Sierpinski Triangle</option>
-        <option value="sierpinskiPyramid">Sierpinski Pyramid</option>
-      </select>
-    </div>
-    <div class="control">
-      <div class="controls-label">Number of Points:</div>
-      <input @change="resetScene" v-model="numberOfPoints" type="range" min="1" :max="maxNumberOfPoints" :value="minNumberOfPoints"
-             class="slider">
-      <div class="control-number-of-points">{{ numberOfPoints }}</div>
-    </div>
-    <div class="control">
-      <div class="controls-label">Background:</div>
-      <select v-model="backgroundTheme" class="select-input">
-        <option value="dark">Dark</option>
-        <option value="white">White</option>
-      </select>
-    </div>
-  </div>
-</template>
-
 <style scoped>
+/* Styles for the main component */
 .canvas {
   position: absolute;
   top: 0;
@@ -167,6 +175,7 @@ onUnmounted(() => {
   border-radius: 8px;
   backdrop-filter: blur(5px);
   transition: background-color 0.3s ease, color 0.3s ease;
+  max-width: 400px;
 }
 
 .controls-dark {
@@ -183,16 +192,19 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   margin-bottom: 10px;
+
 }
 
 .controls-label {
   margin-right: 15px;
-  width: 145px;
+  width: 120px;
   text-align: right;
+  font-size: 14px;
 }
 
 .control-number-of-points {
   margin-left: 15px;
+  font-size: 14px;
 }
 
 .select-input {
@@ -202,6 +214,8 @@ onUnmounted(() => {
   background-color: #333;
   color: white;
   min-width: 150px;
+  font-size: 14px;
+  width: 100%;
 }
 
 .controls-white .select-input {
@@ -212,5 +226,34 @@ onUnmounted(() => {
 
 .slider {
   width: 150px;
+}
+
+@media (max-width: 600px) {
+  .controls {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    padding: 10px;
+    max-width: none;
+  }
+
+  .controls-label {
+    width: 80px;
+    font-size: 12px;
+  }
+
+  .control-number-of-points {
+    font-size: 12px;
+  }
+
+  .select-input {
+    min-width: 100px;
+    font-size: 12px;
+  }
+
+  .slider {
+    width: 100%;
+    max-width: none;
+  }
 }
 </style>

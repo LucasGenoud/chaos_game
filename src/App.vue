@@ -6,9 +6,10 @@ import Three from './components/threejs.vue'
     <three></three>
 </template>
 
-<style scoped>
+<style >
 body{
   margin:0px;
   padding: 0px;
+  overflow: hidden;
 }
 </style>
