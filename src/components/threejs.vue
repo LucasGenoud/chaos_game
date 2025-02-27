@@ -1,44 +1,32 @@
 <script setup>
 import * as THREE from "three";
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-const renderer = new THREE.WebGLRenderer();
+const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 500);
 let scene = null;
 let controls = null;
 const numberOfPoints = ref(1000000);
+const minNumberOfPoints = 1;
+const maxNumberOfPoints = 5000000;
 let loading = ref(true);
-const is3D = ref(true);
+const shapeType = ref("sierpinskiTriangle");
+const backgroundTheme = ref("dark");
 const worker = new Worker(new URL('../worker.js', import.meta.url));
 
-
-function getPyramidVertices(size, centerX, centerY, height) {
-  let baseHeight = (Math.sqrt(3) / 2) * size;
-  let A = new THREE.Vector3(centerX, centerY + baseHeight / 2, 0);
-  let B = new THREE.Vector3(centerX - size / 2, centerY - baseHeight / 2, 0);
-  let C = new THREE.Vector3(centerX + size / 2, centerY - baseHeight / 2, 0);
-  let D = new THREE.Vector3(centerX, centerY, height);
-  return [A, B, C, D];
-}
-
-function getTriangleVertices(size, centerX, centerY) {
-  let baseHeight = (Math.sqrt(3) / 2) * size;
-  let A = new THREE.Vector3(centerX, centerY + baseHeight / 2, 0);
-  let B = new THREE.Vector3(centerX - size / 2, centerY - baseHeight / 2, 0);
-  let C = new THREE.Vector3(centerX + size / 2, centerY - baseHeight / 2, 0);
-  return [A, B, C];
-}
-
-function drawShape(vertices) {
-  worker.postMessage({ vertices, numberOfPoints: numberOfPoints.value, is3D: is3D.value });
+function drawShape() {
+  worker.postMessage({
+    numberOfPoints: numberOfPoints.value,
+    is3D: shapeType.value === "sierpinskiPyramid"
+  });
 
   worker.onmessage = function (event) {
-    const { points, colors } = event.data;
+    const {points, colors} = event.data;
 
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
-    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3)); // Add color attribute
+    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
 
     const material = new THREE.PointsMaterial({
       size: 0.00001,
@@ -56,7 +44,6 @@ function drawShape(vertices) {
   };
 }
 
-
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
@@ -72,12 +59,21 @@ function animate() {
 function resetScene() {
   scene.remove(...scene.children);
   loading.value = true;
-
-  const vertices = is3D.value
-      ? getPyramidVertices(50, 0, 0, 50)
-      : getTriangleVertices(50, 0, 0);
-  drawShape(vertices);
+  drawShape();
 }
+
+function updateBackground() {
+  const canvasElement = document.getElementById("canvas");
+  // Remove all theme classes
+  canvasElement.classList.remove('dark-bg', 'white-bg');
+  // Add the current theme class
+  canvasElement.classList.add(`${backgroundTheme.value}-bg`);
+}
+
+// Watch for background theme changes
+watch(backgroundTheme, () => {
+  updateBackground();
+});
 
 onMounted(() => {
   scene = new THREE.Scene();
@@ -89,6 +85,7 @@ onMounted(() => {
   controls = new OrbitControls(camera, renderer.domElement);
   controls.enableZoom = true;
 
+  updateBackground(); // Initialize background
   resetScene();
   window.addEventListener('resize', onWindowResize);
 });
@@ -102,22 +99,28 @@ onUnmounted(() => {
 <template>
   <div class="canvas" id="canvas"></div>
   <div v-if="loading" class="loading">LOADING</div>
-  <div class="controls">
+  <div class="controls"
+       :class="{ 'controls-dark': backgroundTheme === 'dark', 'controls-white': backgroundTheme === 'white' }">
     <div class="control">
-      <div class="controls-label">Generate 3D Pyramid: </div>
-      <input type="checkbox" v-model="is3D" @change="resetScene" />
+      <div class="controls-label">Fractal Type:</div>
+      <select v-model="shapeType" @change="resetScene" class="select-input">
+        <option value="sierpinskiTriangle">Sierpinski Triangle</option>
+        <option value="sierpinskiPyramid">Sierpinski Pyramid</option>
+      </select>
     </div>
-  <div>
     <div class="control">
       <div class="controls-label">Number of Points:</div>
-      <input  @change="resetScene" v-model="numberOfPoints" type="range" min="1" max="2000000" value="1000000" class="slider">
+      <input @change="resetScene" v-model="numberOfPoints" type="range" min="1" :max="maxNumberOfPoints" :value="minNumberOfPoints"
+             class="slider">
       <div class="control-number-of-points">{{ numberOfPoints }}</div>
-
-
     </div>
-
-  </div>
-
+    <div class="control">
+      <div class="controls-label">Background:</div>
+      <select v-model="backgroundTheme" class="select-input">
+        <option value="dark">Dark</option>
+        <option value="white">White</option>
+      </select>
+    </div>
   </div>
 </template>
 
@@ -128,7 +131,17 @@ onUnmounted(() => {
   left: 0;
   width: 100%;
   height: 100%;
+  transition: background-color 0.3s ease;
 }
+
+.dark-bg {
+  background-color: #000000;
+}
+
+.white-bg {
+  background-color: #ffffff;
+}
+
 .loading {
   position: absolute;
   top: 0;
@@ -139,30 +152,65 @@ onUnmounted(() => {
   justify-content: center;
   align-items: center;
   background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-size: 1.5rem;
 }
+
 .controls {
   position: absolute;
   top: 20px;
   left: 20px;
-  color: white;
   z-index: 1;
-  display:flex;
+  display: flex;
   flex-direction: column;
-
+  padding: 15px;
+  border-radius: 8px;
+  backdrop-filter: blur(5px);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
-.control{
+
+.controls-dark {
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+}
+
+.controls-white {
+  background-color: rgba(255, 255, 255, 0.7);
+  color: black;
+}
+
+.control {
   display: flex;
   align-items: center;
   margin-bottom: 10px;
-
 }
-.controls-label{
 
+.controls-label {
   margin-right: 15px;
-  width:145px;
+  width: 145px;
   text-align: right;
 }
-.control-number-of-points{
+
+.control-number-of-points {
   margin-left: 15px;
+}
+
+.select-input {
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #555;
+  background-color: #333;
+  color: white;
+  min-width: 150px;
+}
+
+.controls-white .select-input {
+  background-color: #f0f0f0;
+  color: black;
+  border: 1px solid #ccc;
+}
+
+.slider {
+  width: 150px;
 }
 </style>

@@ -1,8 +1,20 @@
+
 self.importScripts('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js');
+function getVertices(size, centerX, centerY, height, is3D) {
+    let baseHeight = (Math.sqrt(3) / 2) * size;
+    let A = new THREE.Vector3(centerX, centerY + baseHeight / 2, 0);
+    let B = new THREE.Vector3(centerX - size / 2, centerY - baseHeight / 2, 0);
+    let C = new THREE.Vector3(centerX + size / 2, centerY - baseHeight / 2, 0);
+    if (!is3D) return [A, B, C];
+    let D = new THREE.Vector3(centerX, centerY, height);
+    return [A, B, C, D];
+}
+
 
 self.onmessage = function (event) {
-    const { vertices, numberOfPoints, is3D } = event.data;
+    const { numberOfPoints, is3D } = event.data;
 
+    const vertices = getVertices(50, 0, 0, 50, is3D)
     let center;
     if (is3D) {
         const [A, B, C, D] = vertices;
