@@ -1,5 +1,5 @@
 <script setup>
-import Three from './components/threejs.vue'
+import Three from './components/Threejs.vue'
 </script>
 
 <template>
