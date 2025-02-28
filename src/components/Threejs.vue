@@ -37,8 +37,8 @@ let worker;
 
 function drawShape() {
   if (worker !== undefined) worker.terminate();
-
-  worker = new Worker(new URL(workersLocation[fractalType.value], import.meta.url));
+  if (fractalType.value === "sierpinskiTriangle") worker = new Worker(new URL("../workers/sierpinskiTriangleWorker.js", import.meta.url));
+  else worker = new Worker(new URL("../workers/sierpinskiPyramidWorker.js", import.meta.url));
   worker.postMessage({
     numberOfPoints: numberOfPoints.value,
     is3D: fractalType.value === "sierpinskiPyramid"
