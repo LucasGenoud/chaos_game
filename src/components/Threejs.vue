@@ -1,29 +1,7 @@
 <template>
+  <Controls>  </Controls>
   <div class="canvas" id="canvas"></div>
   <div v-if="loading" class="loading">LOADING</div>
-  <div class="controls"
-       :class="{ 'controls-dark': backgroundTheme === 'dark', 'controls-white': backgroundTheme === 'white' }">
-    <div class="control">
-      <div class="controls-label">Fractal Type:</div>
-      <select v-model="shapeType" @change="resetScene" class="select-input">
-        <option value="sierpinskiTriangle">Sierpinski Triangle</option>
-        <option value="sierpinskiPyramid">Sierpinski Pyramid</option>
-      </select>
-    </div>
-    <div class="control">
-      <div class="controls-label">Number of Points:</div>
-      <input @change="resetScene" v-model="numberOfPoints" type="range" min="1" :max="maxNumberOfPoints" :value="minNumberOfPoints"
-             class="slider">
-      <div class="control-number-of-points">{{ numberOfPoints }}</div>
-    </div>
-    <div class="control">
-      <div class="controls-label">Background:</div>
-      <select v-model="backgroundTheme" class="select-input">
-        <option value="dark">Dark</option>
-        <option value="white">White</option>
-      </select>
-    </div>
-  </div>
 
   <Footer
       user-name="Lucas Genoud"
@@ -35,27 +13,35 @@
 
 <script setup>
 import * as THREE from "three";
+import {useControlsStore} from "@/stores/controls.js";
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import Footer from './Footer.vue'; // Import the Footer component
-
+import Footer from './Footer.vue';
+import Controls from './Controls.vue';
+import {storeToRefs} from "pinia";
 const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 500);
 let scene = null;
 let controls = null;
-const numberOfPoints = ref(1000000);
-const minNumberOfPoints = 1;
-const maxNumberOfPoints = 5000000;
+
+const controlsStore = useControlsStore()
+const { numberOfPoints, fractalType, backgroundTheme } = storeToRefs(controlsStore)
+const workersLocation = {
+  sierpinskiTriangle: '../workers/sierpinskiTriangleWorker.js',
+  sierpinskiPyramid: '../workers/sierpinskiPyramidWorker.js',
+};
 let loading = ref(true);
-const shapeType = ref("sierpinskiTriangle");
-const backgroundTheme = ref("dark");
-const worker = new Worker(new URL('../worker.js', import.meta.url));
+
+let worker;
 
 function drawShape() {
+  if (worker !== undefined) worker.terminate();
+
+  worker = new Worker(new URL(workersLocation[fractalType.value], import.meta.url));
   worker.postMessage({
     numberOfPoints: numberOfPoints.value,
-    is3D: shapeType.value === "sierpinskiPyramid"
+    is3D: fractalType.value === "sierpinskiPyramid"
   });
 
   worker.onmessage = function (event) {
@@ -92,7 +78,7 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-function resetScene() {
+function reloadScene() {
   scene.remove(...scene.children);
   loading.value = true;
   drawShape();
@@ -100,18 +86,17 @@ function resetScene() {
 
 function updateBackground() {
   const canvasElement = document.getElementById("canvas");
-  // Remove all theme classes
   canvasElement.classList.remove('dark-bg', 'white-bg');
-  // Add the current theme class
   canvasElement.classList.add(`${backgroundTheme.value}-bg`);
 }
 
-// Watch for background theme changes
 watch(backgroundTheme, () => {
   updateBackground();
 });
 
-
+watch([numberOfPoints, fractalType], () => {
+  reloadScene();
+});
 onMounted(() => {
   scene = new THREE.Scene();
   document.getElementById("canvas").appendChild(renderer.domElement);
@@ -122,7 +107,7 @@ onMounted(() => {
   controls.enableZoom = true;
 
   updateBackground();
-  resetScene();
+  reloadScene();
   window.addEventListener('resize', onWindowResize);
 });
 
@@ -132,7 +117,6 @@ onUnmounted(() => {
 });
 </script>
 <style scoped>
-/* Styles for the main component */
 .canvas {
   position: absolute;
   top: 0;
@@ -164,96 +148,5 @@ onUnmounted(() => {
   font-size: 1.5rem;
 }
 
-.controls {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 15px;
-  border-radius: 8px;
-  backdrop-filter: blur(5px);
-  transition: background-color 0.3s ease, color 0.3s ease;
-  max-width: 400px;
-}
 
-.controls-dark {
-  background-color: rgba(0, 0, 0, 0.7);
-  color: white;
-}
-
-.controls-white {
-  background-color: rgba(255, 255, 255, 0.7);
-  color: black;
-}
-
-.control {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-
-}
-
-.controls-label {
-  margin-right: 15px;
-  width: 120px;
-  text-align: right;
-  font-size: 14px;
-}
-
-.control-number-of-points {
-  margin-left: 15px;
-  font-size: 14px;
-}
-
-.select-input {
-  padding: 4px 8px;
-  border-radius: 4px;
-  border: 1px solid #555;
-  background-color: #333;
-  color: white;
-  min-width: 150px;
-  font-size: 14px;
-  width: 100%;
-}
-
-.controls-white .select-input {
-  background-color: #f0f0f0;
-  color: black;
-  border: 1px solid #ccc;
-}
-
-.slider {
-  width: 150px;
-}
-
-@media (max-width: 600px) {
-  .controls {
-    top: 10px;
-    left: 10px;
-    right: 10px;
-    padding: 10px;
-    max-width: none;
-  }
-
-  .controls-label {
-    width: 80px;
-    font-size: 12px;
-  }
-
-  .control-number-of-points {
-    font-size: 12px;
-  }
-
-  .select-input {
-    min-width: 100px;
-    font-size: 12px;
-  }
-
-  .slider {
-    width: 100%;
-    max-width: none;
-  }
-}
 </style>
