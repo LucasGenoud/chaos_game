@@ -28,8 +28,8 @@ let controls = null;
 const controlsStore = useControlsStore()
 const { numberOfPoints, fractalType, backgroundTheme } = storeToRefs(controlsStore)
 const workersLocation = {
-  sierpinskiTriangle: '../workers/sierpinskiTriangleWorker.js',
-  sierpinskiPyramid: '../workers/sierpinskiPyramidWorker.js',
+  sierpinskiTriangle: new URL('../workers/sierpinskiTriangleWorker.js', import.meta.url),
+  sierpinskiPyramid: new URL('../workers/sierpinskiPyramidWorker.js', import.meta.url),
 };
 let loading = ref(true);
 
@@ -37,8 +37,7 @@ let worker;
 
 function drawShape() {
   if (worker !== undefined) worker.terminate();
-  if (fractalType.value === "sierpinskiTriangle") worker = new Worker(new URL("../workers/sierpinskiTriangleWorker.js", import.meta.url));
-  else worker = new Worker(new URL("../workers/sierpinskiPyramidWorker.js", import.meta.url));
+  worker = new Worker(workersLocation[fractalType.value]);
   worker.postMessage({
     numberOfPoints: numberOfPoints.value,
     is3D: fractalType.value === "sierpinskiPyramid"
