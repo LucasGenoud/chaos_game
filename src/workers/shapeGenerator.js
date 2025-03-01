@@ -1,6 +1,6 @@
 self.importScripts('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js');
 
-const shapeGenerators = {
+const shapeGenerator = {
 
     // Triangle (2D)
     triangle: (size, centerX, centerY, height) => {
@@ -77,4 +77,4 @@ const shapeGenerators = {
 };
 
 
-self.shapeGenerators = shapeGenerators;
+self.shapeGenerators = shapeGenerator;
