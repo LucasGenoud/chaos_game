@@ -1,7 +1,7 @@
 self.importScripts('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js');
-self.importScripts('shapeGenerator.js');
-self.importScripts('colorFunctions.js');
-self.importScripts('randomFunctions.js');
+self.importScripts('./shapeGenerator.js');
+self.importScripts('./colorFunctions.js');
+self.importScripts('./randomFunctions.js');
 
 function generateChaosGame(options) {
     const {

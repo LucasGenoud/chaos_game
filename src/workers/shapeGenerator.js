@@ -75,6 +75,4 @@ const shapeGenerator = {
         return vertices;
     }
 };
-
-
 self.shapeGenerators = shapeGenerator;
