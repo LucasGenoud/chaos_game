@@ -14,7 +14,7 @@ export default defineConfig({
       targets: [
         {
           src: 'src/workers/workersUtils/*',
-          dest: 'workersUtils'
+          dest: 'assets/workersUtils'
         }
       ]
     })
