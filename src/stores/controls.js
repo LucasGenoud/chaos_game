@@ -1,7 +1,7 @@
 import {defineStore} from "pinia";
 
 export const useControlsStore = defineStore('counter', {
-    state: () => ({  numberOfPoints: 1000000, fractalType: "sierpinskiTriangle", "backgroundTheme": "dark" }),
+    state: () => ({  numberOfPoints: 1000000, fractalType: "tetrahedron", fractalColor:"hsl",  "backgroundTheme": "dark" }),
 
     actions: {
         setNumberOfPoints(numberOfPoints) {
@@ -12,6 +12,9 @@ export const useControlsStore = defineStore('counter', {
         },
         setBackgroundTheme(backgroundTheme) {
             this.backgroundTheme = backgroundTheme;
+        },
+        setFractalColor(fractalColor) {
+            this.fractalColor = fractalColor;
         },
     },
 })

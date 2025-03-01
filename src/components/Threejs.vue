@@ -19,6 +19,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Footer from './Footer.vue';
 import Controls from './Controls.vue';
 import {storeToRefs} from "pinia";
+const fractalWorker = new Worker(new URL('../workers/fractalWorker.js', import.meta.url));
 const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 500);
@@ -26,24 +27,24 @@ let scene = null;
 let controls = null;
 
 const controlsStore = useControlsStore()
-const { numberOfPoints, fractalType, backgroundTheme } = storeToRefs(controlsStore)
-const workersLocation = {
-  sierpinskiTriangle: new URL('../workers/sierpinskiTriangleWorker.js', import.meta.url),
-  sierpinskiPyramid: new URL('../workers/sierpinskiPyramidWorker.js', import.meta.url),
-  pentagonOneThird: new URL('../workers/pentagonOneThirdWorker.js', import.meta.url),
-  hexagonThreeEighth: new URL('../workers/hexagonThreeEighthWorker.js', import.meta.url),
+const { numberOfPoints, fractalType, backgroundTheme, fractalColor } = storeToRefs(controlsStore)
 
-};
 let loading = ref(true);
 
 let worker;
-
+const jumpRatios = {
+  triangle: 0.5,
+  tetrahedron: 0.5,
+  pentagon: 2 / 3,
+  hexagon: 2 / 3,
+};
 function drawShape() {
-  if (worker !== undefined) worker.terminate();
-  worker = new Worker(workersLocation[fractalType.value]);
+  worker = fractalWorker
   worker.postMessage({
+    shapeType: fractalType.value,
     numberOfPoints: numberOfPoints.value,
-    is3D: fractalType.value === "sierpinskiPyramid"
+    colorMode: fractalColor.value,
+    jumpRatio: jumpRatios[fractalType.value],
   });
 
   worker.onmessage = function (event) {
@@ -77,6 +78,7 @@ function onWindowResize() {
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
+  controls.zoomToCursor = true;
   renderer.render(scene, camera);
 }
 
@@ -96,7 +98,7 @@ watch(backgroundTheme, () => {
   updateBackground();
 });
 
-watch([numberOfPoints, fractalType], () => {
+watch([numberOfPoints, fractalType, fractalColor], () => {
   reloadScene();
 });
 onMounted(() => {

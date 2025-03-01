@@ -2,7 +2,7 @@
 import {storeToRefs} from "pinia";
 import {useControlsStore} from "@/stores/controls.js";
 const controlsStore = useControlsStore()
-const { numberOfPoints, fractalType, backgroundTheme } = storeToRefs(controlsStore)
+const { numberOfPoints, fractalType, backgroundTheme, fractalColor } = storeToRefs(controlsStore)
 
 </script>
 
@@ -12,11 +12,23 @@ const { numberOfPoints, fractalType, backgroundTheme } = storeToRefs(controlsSto
     <div class="control">
       <div class="controls-label">Fractal Type:</div>
       <select v-model="fractalType" class="select-input">
-        <option value="sierpinskiTriangle">Sierpinski Triangle</option>
-        <option value="sierpinskiPyramid">Sierpinski Pyramid</option>
-        <option value="pentagonOneThird">Pentagon with r = 1/3</option>
-        <option value="hexagonThreeEighth">Hexagon with r = 3/8</option>
+        <option value="triangle">Sierpinski triangle</option>
+        <option value="square">Square</option>
 
+        <option value="pentagon">Pentagon with r = 1/3</option>
+        <option value="hexagon">Hexagon with r = 3/8</option>
+        <option value="tetrahedron">Sierpinski tetrahedron</option>
+
+      </select>
+    </div>
+    <div class="control">
+      <div class="controls-label">Background:</div>
+      <select v-model="fractalColor" class="select-input">
+        <option value="hsl">HSL</option>
+        <option value="rgb">RGB</option>
+        <option value="grayscale">Grayscale</option>
+        <option value="rainbow">Rainbow</option>
+        <option value="fire">Fire</option>
 
       </select>
     </div>
