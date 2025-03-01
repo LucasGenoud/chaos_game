@@ -14,6 +14,10 @@ const { numberOfPoints, fractalType, backgroundTheme } = storeToRefs(controlsSto
       <select v-model="fractalType" class="select-input">
         <option value="sierpinskiTriangle">Sierpinski Triangle</option>
         <option value="sierpinskiPyramid">Sierpinski Pyramid</option>
+        <option value="pentagonOneThird">Pentagon with r = 1/3</option>
+        <option value="hexagonThreeEighth">Hexagon with r = 3/8</option>
+
+
       </select>
     </div>
     <div class="control">

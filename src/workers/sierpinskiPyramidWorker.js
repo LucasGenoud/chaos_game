@@ -11,15 +11,12 @@ function getVertices(size, centerX, centerY, height) {
 
 
 self.onmessage = function (event) {
-    const { numberOfPoints, is3D } = event.data;
+    const { numberOfPoints } = event.data;
 
     const vertices = getVertices(50, 0, 0, 50)
-    const [A, B, C, D] = vertices;
-    const center = new THREE.Vector3(
-        (A.x + B.x + C.x + D.x) / 4,
-        (A.y + B.y + C.y + D.y) / 4,
-        (A.z + B.z + C.z + D.z) / 4
-    );
+    const center = new THREE.Vector3();
+    vertices.forEach(vertex => center.add(vertex));
+    center.divideScalar(vertices.length);
 
     let previousPoint = center.clone();
     const points = [];

@@ -30,6 +30,9 @@ const { numberOfPoints, fractalType, backgroundTheme } = storeToRefs(controlsSto
 const workersLocation = {
   sierpinskiTriangle: new URL('../workers/sierpinskiTriangleWorker.js', import.meta.url),
   sierpinskiPyramid: new URL('../workers/sierpinskiPyramidWorker.js', import.meta.url),
+  pentagonOneThird: new URL('../workers/pentagonOneThirdWorker.js', import.meta.url),
+  hexagonThreeEighth: new URL('../workers/hexagonThreeEighthWorker.js', import.meta.url),
+
 };
 let loading = ref(true);
 
