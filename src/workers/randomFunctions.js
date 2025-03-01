@@ -1,26 +1,24 @@
-// colorFunctions.js
 self.importScripts('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js');
 
-function getRandomVertice(vertices) {
+function getRandomVertices(vertices) {
     return vertices[Math.floor(Math.random() * vertices.length)];
 }
 function getRandomVerticeWithPrevious(vertices, previousVertice) {
-    let randomVertice = getRandomVertice(vertices);
-    while (randomVertice === previousVertice) {
-        randomVertice = getRandomVertice(vertices);
+    let randomVertices = getRandomVertices(vertices);
+    while (randomVertices === previousVertice) {
+        randomVertices = getRandomVertices(vertices);
     }
-    return randomVertice;
+    return randomVertices;
 }
-// Color functions
 const randomFunctions = {
     // Triangle (2D)
     triangle: (vertices) => {
-        return getRandomVertice(vertices);
+        return getRandomVertices(vertices);
     },
 
     // Tetrahedron (3D)
     tetrahedron: (vertices) => {
-        return getRandomVertice(vertices);
+        return getRandomVertices(vertices);
 
     },
 
@@ -32,19 +30,19 @@ const randomFunctions = {
 
     // Cube (3D)
     cube: (vertices) => {
-        return getRandomVertice(vertices);
+        return getRandomVertices(vertices);
 
     },
 
     // Pentagon (2D)
     pentagon: (vertices) => {
-        return getRandomVertice(vertices);
+        return getRandomVertices(vertices);
 
     },
 
     // Hexagon (2D)
     hexagon: (vertices) => {
-        return getRandomVertice(vertices);
+        return getRandomVertices(vertices);
 
     }
 };

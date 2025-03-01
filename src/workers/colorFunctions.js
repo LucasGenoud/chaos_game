@@ -1,7 +1,5 @@
-// colorFunctions.js
 self.importScripts('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js');
 
-// Color functions
 const colorFunctions = {
     hsl: (normalizedDistance) => {
         const color = new THREE.Color();
