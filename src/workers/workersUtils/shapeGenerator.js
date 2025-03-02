@@ -1,5 +1,18 @@
 self.importScripts('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js');
 
+
+function getPolygonVerticesList(numberOfSides, size, centerX, centerY) {
+    const vertices = [];
+    const angleStep = (2 * Math.PI) / numberOfSides;
+
+    for (let i = 0; i < numberOfSides; i++) {
+        const angle = i * angleStep;
+        const x = centerX + size * Math.cos(angle);
+        const y = centerY + size * Math.sin(angle);
+        vertices.push(new THREE.Vector3(x, y, 0));
+    }
+    return vertices;
+}
 const shapeGenerator = {
 
     // Triangle (2D)
@@ -47,32 +60,21 @@ const shapeGenerator = {
 
     // Pentagon (2D)
     pentagon: (size, centerX, centerY, height) => {
-        const vertices = [];
-        const angleStep = (2 * Math.PI) / 5;
+        return getPolygonVerticesList(5, size, centerX, centerY);
 
-        for (let i = 0; i < 5; i++) {
-            const angle = i * angleStep - Math.PI / 2; // Start from top
-            const x = centerX + size * Math.cos(angle);
-            const y = centerY + size * Math.sin(angle);
-            vertices.push(new THREE.Vector3(x, y, 0));
-        }
-
-        return vertices;
     },
 
     // Hexagon (2D)
     hexagon: (size, centerX, centerY, height) => {
-        const vertices = [];
-        const angleStep = (2 * Math.PI) / 6;
+        return getPolygonVerticesList(6, size, centerX, centerY);
+    },
+    // Hexagon (2D)
+    heptagon_r1_4 : (size, centerX, centerY, height) => {
+        return getPolygonVerticesList(7, size, centerX, centerY);
+    },
+    heptagon_r2 : (size, centerX, centerY, height) => {
+        return getPolygonVerticesList(7, size, centerX, centerY);
+    },
 
-        for (let i = 0; i < 6; i++) {
-            const angle = i * angleStep;
-            const x = centerX + size * Math.cos(angle);
-            const y = centerY + size * Math.sin(angle);
-            vertices.push(new THREE.Vector3(x, y, 0));
-        }
-
-        return vertices;
-    }
 };
 self.shapeGenerators = shapeGenerator;

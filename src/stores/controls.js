@@ -1,7 +1,7 @@
 import {defineStore} from "pinia";
 
 export const useControlsStore = defineStore('counter', {
-    state: () => ({  numberOfPoints: 1000000, fractalType: "tetrahedron", fractalColor:"hsl",  "backgroundTheme": "dark" }),
+    state: () => ({  numberOfPoints: 1000000, fractalType: "triangle", fractalColor:"hsl",  "backgroundTheme": "dark", resetCamera: false}),
 
     actions: {
         setNumberOfPoints(numberOfPoints) {

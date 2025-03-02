@@ -3,9 +3,9 @@ self.importScripts('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.m
 function getRandomVertices(vertices) {
     return vertices[Math.floor(Math.random() * vertices.length)];
 }
-function getRandomVerticeWithPrevious(vertices, previousVertice) {
+function getRandomVerticesWithoutPrevious(vertices, previousVertices) {
     let randomVertices = getRandomVertices(vertices);
-    while (randomVertices === previousVertice) {
+    while (randomVertices === previousVertices) {
         randomVertices = getRandomVertices(vertices);
     }
     return randomVertices;
@@ -24,7 +24,7 @@ const randomFunctions = {
 
     // Square (2D)
     square: (vertices, previousVertices) => {
-        return getRandomVerticeWithPrevious(vertices, previousVertices);
+        return getRandomVerticesWithoutPrevious(vertices, previousVertices);
 
     },
 
@@ -43,7 +43,12 @@ const randomFunctions = {
     // Hexagon (2D)
     hexagon: (vertices) => {
         return getRandomVertices(vertices);
-
+    },
+    heptagon_r1_4: (vertices) => {
+        return getRandomVertices(vertices);
+    },
+    heptagon_r2: (vertices) => {
+        return getRandomVertices(vertices);
     }
 };
 

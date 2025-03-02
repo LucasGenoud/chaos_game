@@ -2,7 +2,7 @@
 import {storeToRefs} from "pinia";
 import {useControlsStore} from "@/stores/controls.js";
 const controlsStore = useControlsStore()
-const { numberOfPoints, fractalType, backgroundTheme, fractalColor } = storeToRefs(controlsStore)
+const { numberOfPoints, fractalType, backgroundTheme, fractalColor, resetCamera } = storeToRefs(controlsStore)
 
 </script>
 
@@ -14,11 +14,11 @@ const { numberOfPoints, fractalType, backgroundTheme, fractalColor } = storeToRe
       <select v-model="fractalType" class="select-input">
         <option value="triangle">Sierpinski triangle</option>
         <option value="square">Square</option>
-
         <option value="pentagon">Pentagon with r = 1/3</option>
         <option value="hexagon">Hexagon with r = 3/8</option>
+        <option value="heptagon_r1_4">Heptagon r = 1.4</option>
+        <option value="heptagon_r2">Heptagon r = 2</option>
         <option value="tetrahedron">Sierpinski tetrahedron</option>
-
       </select>
     </div>
     <div class="control">
@@ -29,7 +29,6 @@ const { numberOfPoints, fractalType, backgroundTheme, fractalColor } = storeToRe
         <option value="grayscale">Grayscale</option>
         <option value="rainbow">Rainbow</option>
         <option value="fire">Fire</option>
-
       </select>
     </div>
     <div class="control">
@@ -53,8 +52,12 @@ const { numberOfPoints, fractalType, backgroundTheme, fractalColor } = storeToRe
         <option value="white">White</option>
       </select>
     </div>
+    <div class="control">
+      <button @click="resetCamera = !resetCamera" class="reset-button">
+        Reset Camera
+      </button>
+    </div>
   </div>
-
 </template>
 
 <style scoped>
@@ -86,7 +89,6 @@ const { numberOfPoints, fractalType, backgroundTheme, fractalColor } = storeToRe
   display: flex;
   align-items: center;
   margin-bottom: 10px;
-
 }
 
 .controls-label {
@@ -95,7 +97,6 @@ const { numberOfPoints, fractalType, backgroundTheme, fractalColor } = storeToRe
   text-align: right;
   font-size: 14px;
 }
-
 
 .select-input {
   padding: 4px 8px;
@@ -112,6 +113,31 @@ const { numberOfPoints, fractalType, backgroundTheme, fractalColor } = storeToRe
   background-color: #f0f0f0;
   color: black;
   border: 1px solid #ccc;
+}
+
+.reset-button {
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: none;
+  background-color: #4a5568;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  width: 100%;
+  transition: background-color 0.2s;
+}
+
+.reset-button:hover {
+  background-color: #2d3748;
+}
+
+.controls-white .reset-button {
+  background-color: #e2e8f0;
+  color: #1a202c;
+}
+
+.controls-white .reset-button:hover {
+  background-color: #cbd5e0;
 }
 
 @media (max-width: 600px) {
@@ -140,6 +166,11 @@ const { numberOfPoints, fractalType, backgroundTheme, fractalColor } = storeToRe
   .slider {
     width: 100%;
     max-width: none;
+  }
+
+  .reset-button {
+    font-size: 12px;
+    padding: 4px 8px;
   }
 }
 </style>

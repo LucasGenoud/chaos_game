@@ -22,14 +22,17 @@ import {storeToRefs} from "pinia";
 const fractalWorker = new Worker(new URL('../workers/fractalWorker.js', import.meta.url));
 const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 500);
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000000);
 let scene = null;
 let controls = null;
 
 const controlsStore = useControlsStore()
-const { numberOfPoints, fractalType, backgroundTheme, fractalColor } = storeToRefs(controlsStore)
+const { numberOfPoints, fractalType, backgroundTheme, fractalColor, resetCamera } = storeToRefs(controlsStore)
 
 let loading = ref(true);
+
+const initialCameraPosition = { x: 0, y: 0, z: 100 };
+const initialCameraTarget = {x: 0, y: 0, z: 0};
 
 let worker;
 const jumpRatios = {
@@ -37,7 +40,10 @@ const jumpRatios = {
   tetrahedron: 0.5,
   pentagon: 2 / 3,
   hexagon: 2 / 3,
+  heptagon_r1_4: 1.4,
+  heptagon_r2: 2,
 };
+
 function drawShape() {
   worker = fractalWorker
   worker.postMessage({
@@ -94,6 +100,21 @@ function updateBackground() {
   canvasElement.classList.add(`${backgroundTheme.value}-bg`);
 }
 
+// Function to reset camera to initial position
+function resetCameraPosition() {
+  camera.position.set(
+      initialCameraPosition.x,
+      initialCameraPosition.y,
+      initialCameraPosition.z
+  );
+  controls.target.set(
+      initialCameraTarget.x,
+      initialCameraTarget.y,
+      initialCameraTarget.z
+  );
+  controls.update();
+}
+
 watch(backgroundTheme, () => {
   updateBackground();
 });
@@ -101,14 +122,30 @@ watch(backgroundTheme, () => {
 watch([numberOfPoints, fractalType, fractalColor], () => {
   reloadScene();
 });
+
+watch(resetCamera, () => {
+  resetCameraPosition();
+});
+
 onMounted(() => {
   scene = new THREE.Scene();
   document.getElementById("canvas").appendChild(renderer.domElement);
-  camera.position.set(0, 0, 100);
-  camera.lookAt(0, 0, 0);
+  camera.position.set(
+      initialCameraPosition.x,
+      initialCameraPosition.y,
+      initialCameraPosition.z
+  );
+  camera.lookAt(
+      initialCameraTarget.x,
+      initialCameraTarget.y,
+      initialCameraTarget.z
+  );
 
   controls = new OrbitControls(camera, renderer.domElement);
   controls.enableZoom = true;
+  controls.zoomSpeed = 1.0;
+  controls.minDistance = 0.1;
+  controls.maxDistance = Infinity;
 
   updateBackground();
   reloadScene();
@@ -151,6 +188,4 @@ onUnmounted(() => {
   color: white;
   font-size: 1.5rem;
 }
-
-
 </style>
