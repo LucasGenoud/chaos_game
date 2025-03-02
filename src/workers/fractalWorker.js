@@ -18,7 +18,6 @@ function generateChaosGame(options) {
     const getVerticesFunc = self.shapeGenerators[shapeType];
     const vertices = getVerticesFunc(size, centerX, centerY, height);
 
-    const colorFunc = self.colorFunctions[colorMode];
 
     const center = new THREE.Vector3();
     vertices.forEach(vertex => center.add(vertex));

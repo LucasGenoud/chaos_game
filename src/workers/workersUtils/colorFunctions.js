@@ -23,7 +23,7 @@ const colorFunctions = {
 
     fire: (normalizedDistance) => {
         const color = new THREE.Color();
-        const hue = 0.05 + normalizedDistance * 0.15; // Red to yellow
+        const hue = 0.05 + normalizedDistance * 0.15;
         const saturation = 1.0;
         const lightness = 0.3 + normalizedDistance * 0.4;
         color.setHSL(hue, saturation, lightness);
