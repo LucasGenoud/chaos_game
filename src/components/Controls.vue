@@ -13,8 +13,9 @@ const { numberOfPoints, fractalType, backgroundTheme, fractalColor, resetCamera 
       <div class="controls-label">Fractal Type:</div>
       <select v-model="fractalType" class="select-input">
         <option value="triangle">Sierpinski triangle</option>
-        <option value="square">Square</option>
+        <option value="square">Square, no previous</option>
         <option value="pentagon">Pentagon with r = 1/3</option>
+        <option value="pentagon_r0_5">Pentagon with r = 1/2, no previous</option>
         <option value="hexagon">Hexagon with r = 3/8</option>
         <option value="heptagon_r1_4">Heptagon r = 1.4</option>
         <option value="heptagon_r2">Heptagon r = 2</option>

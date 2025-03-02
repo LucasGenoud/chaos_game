@@ -39,6 +39,7 @@ const jumpRatios = {
   triangle: 0.5,
   tetrahedron: 0.5,
   pentagon: 2 / 3,
+  pentagon_r0_5: 0.5,
   hexagon: 2 / 3,
   heptagon_r1_4: 1.4,
   heptagon_r2: 2,

@@ -39,7 +39,10 @@ const randomFunctions = {
         return getRandomVertices(vertices);
 
     },
+    pentagon_r0_5: (vertices, previousVertices) => {
+        return getRandomVerticesWithoutPrevious(vertices, previousVertices);
 
+    },
     // Hexagon (2D)
     hexagon: (vertices) => {
         return getRandomVertices(vertices);

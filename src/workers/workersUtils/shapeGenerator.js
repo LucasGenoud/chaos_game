@@ -63,7 +63,10 @@ const shapeGenerator = {
         return getPolygonVerticesList(5, size, centerX, centerY);
 
     },
+    pentagon_r0_5: (size, centerX, centerY, height) => {
+        return getPolygonVerticesList(5, size, centerX, centerY);
 
+    },
     // Hexagon (2D)
     hexagon: (size, centerX, centerY, height) => {
         return getPolygonVerticesList(6, size, centerX, centerY);
