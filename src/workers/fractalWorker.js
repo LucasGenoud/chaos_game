@@ -51,6 +51,9 @@ function generateChaosGame(options) {
         colors.push(vertexColor.r, vertexColor.g, vertexColor.b);
 
         previousPoint.copy(newPoint);
+        if (i % 1000 === 0) {
+            self.postMessage({type: "progress", progress: Math.round((i / numberOfPoints) * 100)});
+        }
     }
 
     return { points, colors };
@@ -58,6 +61,6 @@ function generateChaosGame(options) {
 
 self.onmessage = function(event) {
     const options = event.data;
-    const result = generateChaosGame(options);
-    self.postMessage(result);
+    const {points, colors} = generateChaosGame(options);
+    self.postMessage({type: "results", points, colors});
 };

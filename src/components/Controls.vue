@@ -22,6 +22,7 @@ const { numberOfPoints, fractalType, backgroundTheme, fractalColor, resetCamera 
         <option value="tetrahedron">Sierpinski tetrahedron</option>
       </select>
     </div>
+    <!--
     <div class="control">
       <div class="controls-label">Background:</div>
       <select v-model="fractalColor" class="select-input">
@@ -32,6 +33,7 @@ const { numberOfPoints, fractalType, backgroundTheme, fractalColor, resetCamera 
         <option value="fire">Fire</option>
       </select>
     </div>
+    -->
     <div class="control">
       <div class="controls-label">Number of Points:</div>
       <select v-model="numberOfPoints" class="select-input">

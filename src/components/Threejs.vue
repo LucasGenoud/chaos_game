@@ -1,7 +1,7 @@
 <template>
   <Controls>  </Controls>
   <div class="canvas" id="canvas"></div>
-  <div v-if="loading" class="loading">LOADING</div>
+  <div v-if="loading" class="loading">LOADING {{progress}}%</div>
 
   <Footer
       user-name="Lucas Genoud"
@@ -25,7 +25,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000000);
 let scene = null;
 let controls = null;
-
+let progress = ref(0);
 const controlsStore = useControlsStore()
 const { numberOfPoints, fractalType, backgroundTheme, fractalColor, resetCamera } = storeToRefs(controlsStore)
 
@@ -55,25 +55,32 @@ function drawShape() {
   });
 
   worker.onmessage = function (event) {
-    const {points, colors} = event.data;
+    if (event.data.type === 'results') {
+      displayDots(event.data.points, event.data.colors);
+    } else if (event.data.type === "progress"){
+      progress.value = event.data.progress;
+    }
 
-    const geometry = new THREE.BufferGeometry().setFromPoints(points);
-    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-
-    const material = new THREE.PointsMaterial({
-      size: 0.00001,
-      vertexColors: true,
-    });
-
-    const pointCloud = new THREE.Points(geometry, material);
-    scene.add(pointCloud);
-    animate();
-    loading.value = false;
   };
 
   worker.onerror = function (error) {
     console.error('Worker error: ', error);
   };
+}
+function displayDots(points, colors){
+
+  const geometry = new THREE.BufferGeometry().setFromPoints(points);
+  geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+  const material = new THREE.PointsMaterial({
+    size: 0.0001,
+    vertexColors: true,
+  });
+
+  const pointCloud = new THREE.Points(geometry, material);
+  scene.add(pointCloud);
+  animate();
+  loading.value = false;
 }
 
 function onWindowResize() {
@@ -169,7 +176,7 @@ onUnmounted(() => {
 }
 
 .dark-bg {
-  background-color: #000000;
+  background-color: #0B090A;
 }
 
 .white-bg {

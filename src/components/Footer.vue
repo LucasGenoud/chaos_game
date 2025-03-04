@@ -100,6 +100,8 @@ defineProps({
   align-items: center;
   gap: 5px;
   text-decoration: none;
+  padding: 4px;
+  border-radius: 3px;
   transition: opacity 0.2s ease;
 }
 
