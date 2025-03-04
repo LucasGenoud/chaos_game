@@ -69,16 +69,20 @@ function drawShape() {
 }
 function displayDots(points, colors){
 
-  const geometry = new THREE.BufferGeometry().setFromPoints(points);
+  const geometry = new THREE.BufferGeometry().setAttribute(
+      'position',
+      new THREE.Float32BufferAttribute(points, 3)
+  );
   geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+  geometry.computeBoundingSphere();
 
   const material = new THREE.PointsMaterial({
     size: 0.0001,
     vertexColors: true,
   });
 
-  const pointCloud = new THREE.Points(geometry, material);
-  scene.add(pointCloud);
+  let p = new THREE.Points(geometry, material);
+  scene.add(p);
   animate();
   loading.value = false;
 }

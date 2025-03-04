@@ -45,7 +45,7 @@ function generateChaosGame(options) {
         newPoint.y = previousPoint.y + (randomVertex.y - previousPoint.y) * jumpRatio;
         newPoint.z = previousPoint.z + (randomVertex.z - previousPoint.z) * jumpRatio;
 
-        points.push(newPoint);
+        points.push(newPoint.x, newPoint.y, newPoint.z);
 
         const vertexColor = vertexColors[vertexIndex];
         colors.push(vertexColor.r, vertexColor.g, vertexColor.b);

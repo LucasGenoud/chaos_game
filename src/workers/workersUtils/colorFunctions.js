@@ -3,7 +3,7 @@ self.importScripts('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.m
 const colorFunctions = {
     hsl: (normalizedDistance) => {
         const color = new THREE.Color();
-        color.setHSL(0.7 - normalizedDistance * 0.7, 1.0, 0.5);
+        color.setHSL(0.7 - normalizedDistance * 0.7, 2.0, 0.5);
         return color;
     },
 
@@ -11,7 +11,7 @@ const colorFunctions = {
         const color = new THREE.Color();
         color.r = 1 - normalizedDistance;
         color.g = normalizedDistance * 0.5;
-        color.b = normalizedDistance;
+        color.b = normalizedDistance *0.5;
         return color;
     },
 
