@@ -46,6 +46,8 @@ const { numberOfPoints, fractalType, backgroundTheme, fractalColor, resetCamera 
         <option :value="1000000">1'000'000</option>
         <option :value="2000000">2'000'000</option>
         <option :value="4000000">4'000'000</option>
+        <option :value="8000000">8'000'000</option>
+        <option :value="16000000">16'000'000</option>
       </select>
     </div>
     <div class="control">
