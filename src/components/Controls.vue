@@ -145,13 +145,15 @@ const { numberOfPoints, fractalType, backgroundTheme, fractalColor, resetCamera 
   background-color: #cbd5e0;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 500px) {
   .controls {
-    top: 10px;
-    left: 10px;
-    right: 10px;
+    top: 0;
+    left: 0;
+    right: 0;
     padding: 10px;
     max-width: none;
+    margin: 0;
+    border-radius: 0;
   }
 
   .controls-label {
@@ -159,18 +161,10 @@ const { numberOfPoints, fractalType, backgroundTheme, fractalColor, resetCamera 
     font-size: 12px;
   }
 
-  .control-number-of-points {
-    font-size: 12px;
-  }
 
   .select-input {
     min-width: 100px;
     font-size: 12px;
-  }
-
-  .slider {
-    width: 100%;
-    max-width: none;
   }
 
   .reset-button {
