@@ -23,7 +23,7 @@ function generateChaosGame(options) {
     vertices.forEach(vertex => center.add(vertex));
     center.divideScalar(vertices.length);
 
-    let previousPoint = center.clone();
+    let previousPoint = { x: center.x, y: center.y, z: center.z };
     let previousVertex;
     const points = [];
     const colors = [];
@@ -40,17 +40,16 @@ function generateChaosGame(options) {
         const vertexIndex = vertices.indexOf(randomVertex);
         previousVertex = randomVertex;
 
-        const newPoint = new THREE.Vector3();
-        newPoint.x = previousPoint.x + (randomVertex.x - previousPoint.x) * jumpRatio;
-        newPoint.y = previousPoint.y + (randomVertex.y - previousPoint.y) * jumpRatio;
-        newPoint.z = previousPoint.z + (randomVertex.z - previousPoint.z) * jumpRatio;
+        const newX = previousPoint.x + (randomVertex.x - previousPoint.x) * jumpRatio;
+        const newY = previousPoint.y + (randomVertex.y - previousPoint.y) * jumpRatio;
+        const newZ = previousPoint.z + (randomVertex.z - previousPoint.z) * jumpRatio;
 
-        points.push(newPoint.x, newPoint.y, newPoint.z);
+        points.push(newX, newY, newZ);
 
         const vertexColor = vertexColors[vertexIndex];
         colors.push(vertexColor.r, vertexColor.g, vertexColor.b);
 
-        previousPoint.copy(newPoint);
+        previousPoint =  { x: newX, y: newY, z: newZ };
         if (i % 1000 === 0) {
             self.postMessage({type: "progress", progress: Math.round((i / numberOfPoints) * 100)});
         }
