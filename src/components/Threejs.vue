@@ -20,7 +20,6 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Footer from './Footer.vue';
 import Controls from './Controls.vue';
 import {storeToRefs} from "pinia";
-import {InstancedMesh} from "three";
 const fractalWorker = new Worker(new URL('../workers/fractalWorker.js', import.meta.url));
 const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -35,7 +34,7 @@ let loading = ref(true);
 let fps = ref(0);
 let frameCount = 0;
 let lastTime = performance.now();
-
+let requestAnimationFrameObj = null;
 const initialCameraPosition = { x: 0, y: 0, z: 100 };
 const initialCameraTarget = {x: 0, y: 0, z: 0};
 
@@ -89,6 +88,11 @@ function displayDots(points, colors){
   let p = new THREE.Points(geometry, material);
 
   scene.add(p);
+  if (requestAnimationFrameObj) {
+    cancelAnimationFrame(requestAnimationFrameObj);
+  }
+  frameCount = 0;
+  lastTime = performance.now();
   animate();
   loading.value = false;
 }
@@ -100,23 +104,22 @@ function onWindowResize() {
 }
 
 function calculateFPS() {
-  frameCount++;
   const currentTime = performance.now();
-  const elapsed = currentTime - lastTime;
+  const elapsedTime = currentTime - lastTime;
 
-  if (elapsed >= 1000) {
-    fps.value = Math.round((frameCount * 1000) / elapsed);
+  if (elapsedTime >= 100) {
+    fps.value = Math.round((frameCount / elapsedTime) * 1000);
     frameCount = 0;
     lastTime = currentTime;
   }
 }
 
 function animate() {
-  requestAnimationFrame(animate);
+  requestAnimationFrameObj = requestAnimationFrame(animate);
   controls.update();
-  controls.zoomToCursor = true;
-  renderer.render(scene, camera);
+  frameCount++;
   calculateFPS();
+  renderer.render(scene, camera);
 }
 
 function reloadScene() {
@@ -174,17 +177,22 @@ onMounted(() => {
   controls = new OrbitControls(camera, renderer.domElement);
   controls.enableZoom = true;
   controls.zoomSpeed = 1.0;
-  controls.minDistance = 0.1;
+  controls.minDistance = 0.01;
   controls.maxDistance = Infinity;
+  controls.zoomToCursor = true;
 
   updateBackground();
   reloadScene();
+
   window.addEventListener('resize', onWindowResize);
 });
 
 onUnmounted(() => {
   window.removeEventListener('resize', onWindowResize);
   worker.terminate();
+  if (requestAnimationFrameObj) {
+    cancelAnimationFrame(requestAnimationFrameObj);
+  }
 });
 </script>
 <style scoped>
